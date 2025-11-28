@@ -1,0 +1,36 @@
+import React, { Component, Fragment } from "react";
+import { render } from "react-dom";
+import { Route, BrowserRouter, Routes } from "react-router-dom";
+import DashboardContent from "./pharmacy/Dashboard";
+import DashboardAdminContent from "./pharmacy/admin/Dashboard_admin";
+import PrivateRoute from "./common/private_route";
+import SignInSide from "./accounts/login";
+import PrivateRoutePG from "./common/private_route_pg";
+import PrivateRouteADMIN from "./common/private_route_admin";
+import DashboardContent_Rh from "./pharmacy/rh/Dashboard_rh"
+
+export default class App extends Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    return (
+    
+      <BrowserRouter>
+            <Fragment>
+              <div>
+                <Routes>
+                  <Route exact path="/Admin" element={<PrivateRouteADMIN><PrivateRoute><DashboardAdminContent/></PrivateRoute></PrivateRouteADMIN>} />
+                  <Route exact path="/rh" element={<PrivateRoutePG><PrivateRoute><DashboardContent_Rh/></PrivateRoute></PrivateRoutePG>} />
+                  <Route exact path="/login" element={<SignInSide/>} /> 
+                </Routes>
+              </div>
+            </Fragment>
+        </BrowserRouter>
+    );
+  }
+}
+
+const appDiv = document.getElementById("app");
+render(<App />, appDiv);
