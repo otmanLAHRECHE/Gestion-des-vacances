@@ -260,6 +260,72 @@ def deletePerson(request, id):
         Personnel.objects.filter(id=id).delete()
         return Response(status=status.HTTP_200_OK, data = {"status":"Person deleted"})
     
+@api_view(['GET'])
+def getAllPersonsNames(request):
+    if request.method == 'GET' and request.user.is_authenticated:
+        queryset = Personnel.objects.all()
+
+        source_serial = PersonneListSerialize(queryset, many=True)
+
+        return Response(status=status.HTTP_200_OK,data=source_serial.data)
+                
+    
+    else :
+        return Response(status=status.HTTP_401_UNAUTHORIZED)  
+    
 
 
 
+
+
+
+
+@api_view(['POST'])
+def addVacance(request):
+    if request.method == 'POST' and request.user.is_authenticated:
+
+        id_person = request.data.pop("id_person")
+        vacance_type = request.data.pop("vacance_type")
+        days_taken = request.data.pop("days_taken")
+
+        date_a = request.data.pop("date_start")
+        date_b = request.data.pop("date_ends")
+        date_c = request.data.pop("date_restart")
+        
+        date_a = date_a.split("/")
+        date_b = date_b.split("/")
+        date_c = date_c.split("/")
+        
+        date_start = datetime.date(int(date_a[2]), int(date_a[1]), int(date_a[0]))
+        date_end = datetime.date(int(date_b[2]), int(date_b[1]), int(date_b[0]))
+        date_restart = datetime.date(int(date_c[2]), int(date_c[1]), int(date_c[0]))
+        person = Personnel.objects.get(id = id_person)
+        days_remains = days_taken
+        va = vacance.objects.create(person=person,vacance_type=vacance_type,date_start=date_start,date_end=date_end,date_restart=date_restart,days_taken=days_taken,days_remains=days_remains)
+        if va.id is not None:
+            return Response(status=status.HTTP_201_CREATED, data={"status": "vacance created sucsusfully"}) 
+        else:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+def getAllVacancesOfYear(request, year):
+    if request.method == 'GET' and request.user.is_authenticated:
+        datest = datetime.date(year , 1, 1)
+        dateed = datetime.date( year, 12, 31)
+
+        queryset = vacance.objects.filter(date_restart__gte=datest, date_restart__lte=dateed).order_by("-date_restart")
+
+        source_serial = VacanceSerializer(queryset, many=True)
+
+        return Response(status=status.HTTP_200_OK,data=source_serial.data)
+                
+    else :
+        return Response(status=status.HTTP_401_UNAUTHORIZED) 
+    
+@api_view(['DELETE'])
+def deleteVacance(request, id):
+    if request.method == 'DELETE' and request.user.is_authenticated:
+        vacance.objects.filter(id=id).delete()
+        return Response(status=status.HTTP_200_OK, data = {"status":"Vacance deleted"})
+ 

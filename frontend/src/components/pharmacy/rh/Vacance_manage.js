@@ -4,7 +4,13 @@ import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { DataGrid, GridToolbar, GridActionsCellItem,GridToolbarContainer,GridToolbarFilterButton,} from '@mui/x-data-grid';
 import dayjs from 'dayjs';
+import FormControl from '@mui/material/FormControl';
 
+import MenuItem from '@mui/material/MenuItem';
+
+import Select from '@mui/material/Select';
+
+import InputLabel from '@mui/material/InputLabel';
 import LoadingButton from '@mui/lab/LoadingButton';
 import SaveIcon from '@mui/icons-material/Save';
 
@@ -35,12 +41,9 @@ import Container from '@mui/material/Container';
 
 import Alt from '../layouts/alert';
 
-import { getAllDestinataireForSelect } from '../../actions/fournisseur_source_data';
-import { getAllArrivageOfMedic, getAllMedicNames } from '../../actions/medicament_data';
-import { getSelectedStock } from '../../actions/stock_data';
 import { internal_processStyles } from '@mui/styled-engine';
-import { addBonSortie, addBonSortieItem, deleteBonSortie, getAllBonSortieOfMonth, getSelectedBonSortie, updateBonSortie } from '../../actions/bon_sortie_data';
-
+import { addNewVacance,getAllVacancesOfYear,deleteVacance,getall } from '../../../actions/vacance_data';
+import { getAllPersonsNames } from '../../../actions/pers_data';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -112,17 +115,6 @@ const columns = [
 
     const theme = useTheme
 
-    function CustomToolbar() {
-      return (
-        <GridToolbarContainer>
-          <GridToolbarFilterButton />
-          <Button startIcon={<DeleteForeverIcon />} onClick={deleteItem}>
-            Supprimer
-          </Button>
-        </GridToolbarContainer>
-      );
-    }
-
       function Copyright(props) {
           return (
             <Typography variant="body2" color="text.secondary" align="center" {...props}>
@@ -138,29 +130,26 @@ const columns = [
 
         const addBonSortieOpen = async () =>{
 
-          sortieItemsTableData = [];
-          setDataSortie(sortieItemsTableData);
-          setBonNbr("");
-          setMedicName(null);
-          setArivage(null);
-          setQnt("");
-          setDate("");
-          setSource(null);
+          
+          setType("");
+          setPerson(null);
+          setDays_taken("");
+          setDate_start("");
+          setDate_end("");
+          setDate_restart("");
 
 
-          setMedicNameError([false, ""]);
-          setArivageError([false, ""]);
-          setQntError([false, ""]);
-          setDateError([false, ""]);
-          setBonNbrError([false, ""]);
-          setSourceError([false, ""]);
+          setPersonError([false, ""]);
+          setDate_startError([false, ""]);
+          setDate_endError([false, ""]);
+          setDate_restartError([false, ""]);
+          setDays_takenError([false, ""]);
+          setTypeError([false, ""]);
 
 
           const token = localStorage.getItem("auth_token");
 
-          setSourceData(await getAllDestinataireForSelect(token));
-
-          setNamesData(await getAllMedicNames(token));
+          setPersonsData(await getAllMedicNames(token));
 
         };
 
@@ -168,43 +157,37 @@ const columns = [
           setOpen(false);
         }
 
+        const handleChangeDateStart = (newValue) =>{
+          setDate_start(newValue);
 
+        }
 
-        const handleChangeDate = (newValue) =>{
-          setDate(newValue);
+        const handleChangeDateEnd = (newValue) =>{
+          setDate_end(newValue);
+
+        }
+
+        const handleChangeDateRestart = (newValue) =>{
+          setDate_restart(newValue);
 
         }
 
         const handleChangeFilterDate = (newValue) =>{
           setDateFilter(newValue);
 
-          console.log("filter date...", newValue);
-
         }
 
-        const editBonSortieOpen = async () =>{
-          if(selectionModel.length == 0){
-            setSelectionError(true);
-          }else{    
-            const token = localStorage.getItem("auth_token");
-
-            setSourceData(await getAllDestinataireForSelect(token));
-    
-            setRowData(await getSelectedBonSortie(token, selectionModel[0])); 
-          }
-
-
-        };
+       
 
         const addBonSortieSave = async () =>{
           var test = true;
 
-          setMedicNameError([false, ""]);
-          setArivageError([false, ""]);
-          setQntError([false, ""]);
-          setDateError([false, ""]);
-          setBonNbrError([false, ""]);
-          setSourceError([false, ""]);
+          setPersonError([false, ""]);
+          setDate_startError([false, ""]);
+          setDate_endError([false, ""]);
+          setDate_restartError([false, ""]);
+          setDays_takenError([false, ""]);
+          setTypeError([false, ""]);
 
           if (bonNbr == ""){
             test = false;
@@ -216,9 +199,9 @@ const columns = [
             setSourceError([true, "champ est obligatoire"]);
           }
 
-          if(date == null || date == ""){
+          if(date_start == null || date_start == ""){
             test = false;
-            setDateError([true, "champ est obligatoire"]);
+            setDate_startError([true, "champ est obligatoire"]);
           }else if(date.isValid() == false){
             test = false;
             setDateError([true, "date n est pas valide"]);
@@ -244,11 +227,23 @@ const columns = [
           }else{
             console.log("error");
             setLoadError(true);
-
           }
-
-
         }
+
+
+         const change_type = (event) => {
+          if (event.target.value == ""){
+          setType("")
+        }else if (event.target.value == 1){
+          setType("عطلة سنوية")
+        }else if (event.target.value == 1){
+          setType("عطلة مرضية")
+        }else if (event.target.value == 1){
+          setType("وضع تحت الإستيداع")
+        }else if (event.target.value == 1){
+          setType("الخدمة الوطنية")
+        };
+      }
 
         const addSortieIem = async () =>{
           var test = true;
@@ -306,82 +301,19 @@ const columns = [
 
         }
 
-
-        React.useEffect(() => {
-          console.log(rowData);
-          try{
-    
-            if (rowData == "no data"){
-              setResponseErrorSignal(true);
-            } else if(rowData != "") {
-      
-            setOpenUpdate(true);
-      
-            setBonNbr(rowData.bon_sortie_nbr);
-            setSource({"id":rowData.source.id, "label":rowData.source.name +" "+rowData.source.service});
-            setDate(dayjs(rowData.date, 'YYYY-MM-DD'));
-    
-            setBonNbrError([false, ""]);
-            setSourceError([false, ""]);
-            setDateError([false, ""]);
-    
-            }
-          }catch(e){
-            console.log(e)
-          }
-    
-        }, [rowData]);
-
         React.useEffect(() =>{
           try{
-            if (sourceData == "no data"){
+            if (personsData == "no data"){
               setResponseErrorSignal(true);
-            } else if(sourceData != "") {
-              setAllSources(sourceData);
-            }
-          }catch(e){
-            console.log(e);
-          }
-        }, [sourceData]);
-
-        React.useEffect(() =>{
-          try{
-            if (namesData == "no data"){
-              setResponseErrorSignal(true);
-            } else if(namesData != "") {
-              setAllNames(namesData);
+            } else if(personsData != "") {
+              setAllPersons(personsData);
               setOpen(true);
             }
           }catch(e){
             console.log(e);
           }
-        }, [namesData]);
+        }, [personsData]);
 
-        React.useEffect(() =>{
-          try{
-            if (arrivageData == "no data"){
-              setResponseErrorSignal(true);
-            } else{
-              console.log("arrivage data returned from the api...",arrivageData);
-              setAllArivage(arrivageData);
-            }
-          }catch(e){
-            console.log(e);
-          }
-        }, [arrivageData]);
-
-        React.useEffect(() =>{
-          
-          try{
-            if (currentStockItem == "no data"){
-              setResponseErrorSignal(true);
-            } else if(currentStockItem != "") {
-              console.log(currentStockItem);
-            }
-          }catch(e){
-            console.log(e);
-          }
-        }, [currentStockItem]);
 
         React.useEffect(() => {
 
@@ -403,9 +335,8 @@ const columns = [
           const fetchData = async () => {
             try {
               const token = localStorage.getItem("auth_token");
-              var month = dateFilter.get("month")+1
               var year = dateFilter.get('year')
-              setData(await getAllBonSortieOfMonth(token, month, year));
+              setData(await getAllVacancesOfYear(token, year));
               setLoading(false);
             } catch (error) {
               console.log("error", error);
@@ -425,75 +356,7 @@ const columns = [
     
         }, [response, dateFilter]);
 
-        React.useEffect(() => {
-
-          const upload = async (da) =>{
-            const token = localStorage.getItem("auth_token");
-              await addBonSortieItem(token, JSON.stringify(da));
-          }
-
-          const upload2 = async (da) =>{
-            const token = localStorage.getItem("auth_token");           
-              setResponse(await addBonSortieItem(token, JSON.stringify(da)));
-          }
-
-    
-          if (callBack == ""){
-
-          } else{
-
-            console.log("callback..........", callBack.id_bon_sortie);
-            console.log("length..........", sortieItemsTableData.length);
-
-            for(var i=0; i<sortieItemsTableData.length; i++){
-
-              if(i != sortieItemsTableData.length - 1){
-                const d = {
-                  "id_bon_sortie":Number(callBack.id_bon_sortie),
-                  "id_stock_med":sortieItemsTableData[i].id_stock,
-                  "sortie_qte":sortieItemsTableData[i].sortie_qnt
-                };
-
-                upload(d);
-
-                
-
-  
-              }else{
-                const d = {
-                  "id_bon_sortie":Number(callBack.id_bon_sortie),
-                  "id_stock_med":sortieItemsTableData[i].id_stock,
-                  "sortie_qte":sortieItemsTableData[i].sortie_qnt
-                };
-
-                upload2(d);
-                
-
-              }                    
-            }
-            setResponseSuccesSignal(true);
-            setCallBack("");
-            setOpen(false);
-          }
-    
-        }, [callBack]);
-
-
-        const deleteItem = () =>{
-          var index = null;
-          var table = [];
-          for (var i =0; i< sortieItemsTableData.length; i++){
-            if (sortieItemsTableData[i].id == selectionModelItems[0]){
-              index = i; 
-            }else{
-              table.push(sortieItemsTableData[i])
-            }
-          }
-          if (index != null){
-            sortieItemsTableData = table;
-            setDataSortie(sortieItemsTableData);
-          }
-        }
+      
 
         const deleteBonSortieOpen = () =>{
 
@@ -513,58 +376,7 @@ const columns = [
   
           setOpenDelete(false);
           const token = localStorage.getItem("auth_token");
-          setResponse(await deleteBonSortie(token, selectionModel[0])); 
-        }
-
-        const editBonSortieClose = () =>{
-          setOpenUpdate(false);
-        }
-
-        const editBonSortieSave = async () =>{
-          var test = true;
-
-          setBonNbrError([false, ""]);
-          setSourceError([false, ""]);
-          setDateError([false, ""]);
-
-
-          if (bonNbr == ""){
-            test = false;
-            setBonNbrError([true, "champ est obligatoire"]);
-          }
-
-          if(source == null || source == ""){
-            test = false;
-            setSourceError([true, "champ est obligatoire"]);
-          }
-
-          if(date == null || date == ""){
-            test = false;
-            setDateError([true, "champ est obligatoire"]);
-          }else if(date.isValid() == false){
-            test = false;
-            setDateError([true, "date n est pas valide"]);
-          }
-
-          if(test){
-            setOpenUpdate(false);
-
-            var m = date.get('month')+1;
-            const d = date.get('date') +"/"+m +"/"+date.get('year');
-
-            const data = {
-              "bon_sortie_nbr":Number(bonNbr),
-              "id":source.id,
-              "date":d,
-            }
-
-            const token = localStorage.getItem("auth_token");
-            setResponse(await updateBonSortie(token, JSON.stringify(data), rowData.id)); 
-
-          }else{
-            console.log("error");
-          setLoadError(true)
-          }
+          setResponse(await deleteVacance(token, selectionModel[0])); 
         }
 
         return(
@@ -609,7 +421,7 @@ const columns = [
                 >
                 <ButtonGroup variant="outlined" aria-label="outlined primary button group" orientation="vertical">
                   <Button startIcon={<AddCircleOutlineIcon />} onClick={addBonSortieOpen}>إضافة عطلة</Button>
-                  <Button startIcon={<DeleteForeverIcon />} onClick={deleteBonSortieOpen}>إسئناف لأسباب</Button>
+                  <Button startIcon={<DeleteForeverIcon />} onClick={deleteBonSortieOpen}>إسئناف خاص</Button>
                   <Button startIcon={<DeleteForeverIcon />} onClick={deleteBonSortieOpen}>إسئناف نهاية العطلة</Button>
                 </ButtonGroup>
                 </Box>
@@ -648,49 +460,52 @@ const columns = [
                     <DialogContent>
                       <Grid container spacing={2}>
                                         <Grid item xs={4}>
-                                          <TextField
-                                                  error={bonNbrError[0]}
-                                                  helperText={bonNbrError[1]}
-                                                  margin="dense"
-                                                  id="person"
-                                                  label="الإسم و اللقب"
-                                                  fullWidth
-                                                  variant="standard"
-                                                  onChange={(event) => {setBonNbr(event.target.value)}}
-                                          />
+                                          <Autocomplete
+                                                    disablePortal
+                                                    value={person}
+                                                    onChange={(event, newVlue) =>{
+                                                        setPerson(newVlue);
+                                                        
+                                                    }}
+                                                    options={allPersons}
+                                                    renderInput={(params) => <TextField {...params} error={personError[0]}
+                                                    helperText={personError[1]} fullWidth variant="standard" label="الموظف" 
+                                                    required/>}
+                                                /> 
 
                                         </Grid>
                                         <Grid item xs={4}>
-                                                <Autocomplete
-                                                    disablePortal
-                                                    value={source}
-                                                    onChange={(event, newVlue) =>{
-                                                        setSource(newVlue);
-                                                        
-                                                    }}
-                                                    options={allSources}
-                                                    renderInput={(params) => <TextField {...params} error={sourceError[0]}
-                                                    helperText={sourceError[1]} fullWidth variant="standard" label="Destination" 
-                                                    required/>}
-                                                />  
+                                               <FormControl variant="standard" sx={{ m: 1, width: 300 }}>
+                                  <InputLabel required htmlFor="grouped-select"
+                                  error={typeError[0]}
+                                  helperText={typeError[1]}>نوع العطلة</InputLabel>
+                                    <Select defaultValue="" id="grouped-select" label="نوع العطلة"
+                                    onChange={change_type}>
+                                      <MenuItem value="">
+                                        <em>None</em>
+                                      </MenuItem>
+                                      <MenuItem value={1}>عطلة سنوية</MenuItem>
+                                      <MenuItem value={2}>عطلة مرضية</MenuItem>
+                                      <MenuItem value={3}>وضع تحت الإستيداع</MenuItem>
+                                      <MenuItem value={4}>الخدمة الوطنية</MenuItem>
+                                    </Select>
+                                </FormControl>  
                                         
                                         </Grid>
 
                                         <Grid item xs={4}>
                                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                                                 <DesktopDatePicker
-                                                        label="Date"
+                                                        label="تاريخ بداية العطلة"
                                                         inputFormat="DD/MM/YYYY"
-                                                        value={date}
-                                                        onChange={handleChangeDate}
-                                                        renderInput={(params) => <TextField {...params} error={dateError[0]}
-                                                        helperText={dateError[1]} 
+                                                        value={date_start}
+                                                        onChange={handleChangeDateStart}
+                                                        renderInput={(params) => <TextField {...params} error={date_startError[0]}
+                                                        helperText={date_startError[1]} 
                                                         required/>}
                                                 />
 
                                             </LocalizationProvider>
-                                                 
-                                        
                                         </Grid>
 
                         
@@ -700,139 +515,63 @@ const columns = [
 
                       <Grid container spacing={2}>
 
-                                <Grid item xs={4}>
-                                <Box sx={{ p: 2, border: '1px dashed grey' }}>
-                                
-                                  <Grid container spacing={2}>
-                                    <Grid item xs={12}>
-                                    <Autocomplete
-                                            disablePortal
-                                            value={medicName}
-                                            onChange={async (event, newVlue) =>{
-                                                setMedicName(newVlue);
-
-                                                if (newVlue != null){
-                                                  const token = localStorage.getItem("auth_token");
-                                                  setArrivageData(await getAllArrivageOfMedic(token, newVlue.id));
-                                                }else{
-                                                  setAllArivage([]);
-                                                }                                                                                                
-                                            }}
-                                            id="combo-box-demo"
-                                            options={allNames}
-                                            renderInput={(params) => <TextField {...params} error={medicNameError[0]}
-                                            helperText={medicNameError[1]} fullWidth variant="standard" label="Médicaments" 
-                                            required/>}
-                                        />
-
-                                    </Grid>
-
-                                  </Grid>
-                                  </Box>
-                                </Grid> 
-                                <Grid item xs={4}>
-                                <Box sx={{ p: 2, border: '1px dashed grey' }}>
-                                
-                                  <Grid container spacing={2}>
-                                    <Grid item xs={12}>
-                                    <Autocomplete
-                                            disablePortal
-                                            value={medicName}
-                                            onChange={async (event, newVlue) =>{
-                                                setMedicName(newVlue);
-
-                                                if (newVlue != null){
-                                                  const token = localStorage.getItem("auth_token");
-                                                  setArrivageData(await getAllArrivageOfMedic(token, newVlue.id));
-                                                }else{
-                                                  setAllArivage([]);
-                                                }                                                                                                
-                                            }}
-                                            id="combo-box-demo"
-                                            options={allNames}
-                                            renderInput={(params) => <TextField {...params} error={medicNameError[0]}
-                                            helperText={medicNameError[1]} fullWidth variant="standard" label="Médicaments" 
-                                            required/>}
-                                        />
-
-                                    </Grid>
-
-                                  </Grid>
-                                  </Box>
-                                </Grid> 
-                            </Grid> 
-                    </DialogContent>
-                              <DialogActions>
-                                <Button onClick={addBonSortieClose}>Anuller</Button>
-                                <Button onClick={addBonSortieSave}>Sauvgarder</Button>
-                              </DialogActions>   
-
-                    
-            </Dialog>
-
-            <Dialog open={openUpdate} onClose={editBonSortieClose}  maxWidth="lg" fullWidth={true}>
-                  <DialogTitle>Editer un bon de sortie</DialogTitle>
-                    <DialogContent>
-                      <Grid container spacing={2}>
-                                        <Grid item xs={4}>
-                                          <TextField
-                                                  error={bonNbrError[0]}
-                                                  helperText={bonNbrError[1]}
-                                                  value={bonNbr}
+                        <Grid item xs={4}>
+                          <TextField
+                                                  error={days_takenError[0]}
+                                                  helperText={days_takenError[1]}
                                                   margin="dense"
-                                                  id="bon_sortie_nbr"
-                                                  label="Bon de sortie Nbr"
+                                                  id="days_taken"
+                                                  label="عدد أيام العطلة"
                                                   fullWidth
                                                   variant="standard"
                                                   type="number"
-                                                  onChange={(event) => {setBonNbr(event.target.value)}}
+                                                  value={days_taken}
+                                                  onChange={(event) => {setDays_taken(event.target.value)}}
+                                                  required
                                           />
-
-                                        </Grid>
-                                        <Grid item xs={4}>
-                                                <Autocomplete
-                                                    disablePortal
-                                                    value={source}
-                                                    onChange={(event, newVlue) =>{
-                                                        setSource(newVlue);
-                                                        
-                                                    }}
-                                                    options={allSources}
-                                                    renderInput={(params) => <TextField {...params} error={sourceError[0]}
-                                                    helperText={sourceError[1]} fullWidth variant="standard" label="Destination" 
-                                                    required/>}
-                                                />  
                                         
+                        </Grid>
+
+                                      <Grid item xs={4}>
+                                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                <DesktopDatePicker
+                                                        label="تاريخ نهايةالعطلة"
+                                                        inputFormat="DD/MM/YYYY"
+                                                        value={date_end}
+                                                        onChange={handleChangeDateEnd}
+                                                        renderInput={(params) => <TextField {...params} error={date_endError[0]}
+                                                        helperText={date_endError[1]} 
+                                                        required/>}
+                                                />
+
+                                            </LocalizationProvider>
                                         </Grid>
 
                                         <Grid item xs={4}>
                                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                                                 <DesktopDatePicker
-                                                        label="Date"
+                                                        label="تاريخ الإستئناف"
                                                         inputFormat="DD/MM/YYYY"
-                                                        value={date}
-                                                        onChange={handleChangeDate}
-                                                        renderInput={(params) => <TextField {...params} error={dateError[0]}
-                                                        helperText={dateError[1]} 
+                                                        value={date_restart}
+                                                        onChange={handleChangeDateRestart}
+                                                        renderInput={(params) => <TextField {...params} error={date_restartError[0]}
+                                                        helperText={date_restartError[1]} 
                                                         required/>}
                                                 />
 
                                             </LocalizationProvider>
-                                                 
-                                        
                                         </Grid>
-                        
-                      </Grid>
-                      <br></br> 
 
+                            </Grid> 
                     </DialogContent>
                               <DialogActions>
-                                <Button onClick={editBonSortieClose}>Anuller</Button>
-                                <Button onClick={editBonSortieSave}>Sauvgarder</Button>
+                                <Button onClick={addBonSortieClose}>إلغاء</Button>
+                                <Button onClick={addBonSortieSave}>حفظ</Button>
                               </DialogActions>   
 
                     
             </Dialog>
+
 
             <Dialog open={openDelete}
                                     TransitionComponent={Transition}
@@ -840,15 +579,15 @@ const columns = [
                                     onClose={deleteBonSortieClose}
                                     aria-describedby="alert-dialog-slide-description"
                                   >
-                                    <DialogTitle>{"Confirmer la suppression d'un bon de sortie"}</DialogTitle>
+                                    <DialogTitle>{"تأكيد الإستئناف"}</DialogTitle>
                                     <DialogContent>
                                       <DialogContentText id="alert-dialog-slide-description">
-                                      Êtes-vous sûr de la décision de supprimer le bon de sortie ?
+                                      معلومات عطلة هذا الموظف سوف تحفظ في أرشيف العطل
                                       </DialogContentText>
                                     </DialogContent>
                                     <DialogActions>
-                                      <Button onClick={deleteBonSortieClose}>Anuller</Button>
-                                      <Button onClick={deleteConfirmation}>Supprimer</Button>
+                                      <Button onClick={deleteBonSortieClose}>إلغاء</Button>
+                                      <Button onClick={deleteConfirmation}>إستئناف</Button>
                                     </DialogActions>
                       </Dialog>
             
@@ -859,9 +598,6 @@ const columns = [
             {responseSuccesSignal ? <Alt type='success' message='Opération réussie' onClose={()=> setResponseSuccesSignal(false)}/> : null}
             {responseErrorSignal ? <Alt type='error' message='Opération a échoué' onClose={()=> setResponseErrorSignal(false)}/> : null}
             {selectionError ? <Alt type='error' message='Selectioner un item' onClose={()=> setSelectionError(false)} /> : null}
-            {sortieQntError ? <Alt type='error' message='la quantité remplie n est pas desponible' onClose={()=> setSortieQntError(false)} /> : null}
-            {dataError ? <Alt type='error' message='La liste des items de bon de sorte est vide!!' onClose={()=> setDataError(false)} /> : null}
-            {dateFilterNotErr ? <Alt type='error' message='La liste des items de bon de sorte est vide!!' onClose={()=> setDateFilterNotErr(false)} /> : null}
           
         </React.Fragment>
 

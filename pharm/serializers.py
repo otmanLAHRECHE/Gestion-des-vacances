@@ -49,3 +49,16 @@ class PersonnelSerialize(serializers.ModelSerializer):
         model = Personnel
         fields = ['id', 'full_name', 'service', 'grade']
 
+
+class PersonneListSerialize(serializers.ModelSerializer):
+    label = serializers.CharField(source='full_name')
+    class Meta:
+        model = Service
+        fields = ['id', 'label']
+
+class VacanceSerializer(serializers.ModelSerializer):
+    person = PersonnelSerialize()
+    class Meta:
+        model = vacance
+        fields = ['id','person','date_start','date_ends','days_taken','date_restart','vacance_type']
+
