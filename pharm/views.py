@@ -313,7 +313,7 @@ def getAllVacancesOfYear(request, year):
     if request.method == 'GET' and request.user.is_authenticated:
         datest = datetime.date(year , 1, 1)
         dateed = datetime.date( year, 12, 31)
-
+        print("data")
         queryset = vacance.objects.filter(date_restart__gte=datest, date_restart__lte=dateed).order_by("-date_restart")
 
         source_serial = VacanceSerializer(queryset, many=True)

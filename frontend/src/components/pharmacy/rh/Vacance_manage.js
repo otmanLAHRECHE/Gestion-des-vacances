@@ -14,6 +14,7 @@ import InputLabel from '@mui/material/InputLabel';
 import LoadingButton from '@mui/lab/LoadingButton';
 import SaveIcon from '@mui/icons-material/Save';
 
+import IconButton from '@mui/material/IconButton';
 
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -37,12 +38,15 @@ import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import Typography from '@mui/material/Typography';
 
+import EventRepeatIcon from '@mui/icons-material/EventRepeat';
+import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
+import AssignmentReturnIcon from '@mui/icons-material/AssignmentReturn';
+
 import Container from '@mui/material/Container';
 
-import Alt from '../layouts/alert';
+import Alt from '../../layouts/alert';
 
-import { internal_processStyles } from '@mui/styled-engine';
-import { addNewVacance,getAllVacancesOfYear,deleteVacance,getall } from '../../../actions/vacance_data';
+import { addNewVacance,getAllVacancesOfYear,deleteVacance } from '../../../actions/vacance_data';
 import { getAllPersonsNames } from '../../../actions/pers_data';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -64,10 +68,10 @@ const columns = [
     { field: 'days_remains', headerName: 'عدد الأيام المتبقية', width: 140 },
   ];
 
-  export default function Bon_sortie(){
+  export default function Vacance_inf(){
 
-    const [person, setPerson] = React.useState(null);
-    const [type, setType] = React.useState(null);
+    const [person, setPerson] = React.useState("");
+    const [type, setType] = React.useState("");
     const [date_start, setDate_start] = React.useState("");
     const [date_end, setDate_end] = React.useState("");
     const [date_restart, setDate_restart] = React.useState("");
@@ -81,8 +85,8 @@ const columns = [
     
     const [days_takenError, setDays_takenError] = React.useState("");
     const [days_remainsError, setDays_remainsError] = React.useState("");
-    const [personError, setPersonError] = React.useState(null);
-    const [typeError, setTypeError] = React.useState(null);
+    const [personError, setPersonError] = React.useState("");
+    const [typeError, setTypeError] = React.useState("");
     const [date_startError, setDate_startError] = React.useState("");
     const [date_endError, setDate_endError] = React.useState("");
     const [date_restartError, setDate_restartError] = React.useState("");
@@ -130,14 +134,12 @@ const columns = [
 
         const addBonSortieOpen = async () =>{
 
-          
           setType("");
           setPerson(null);
           setDays_taken("");
           setDate_start("");
           setDate_end("");
           setDate_restart("");
-
 
           setPersonError([false, ""]);
           setDate_startError([false, ""]);
@@ -146,10 +148,9 @@ const columns = [
           setDays_takenError([false, ""]);
           setTypeError([false, ""]);
 
-
           const token = localStorage.getItem("auth_token");
 
-          setPersonsData(await getAllMedicNames(token));
+          setPersonsData(await getAllPersonsNames(token));
 
         };
 
@@ -189,40 +190,53 @@ const columns = [
           setDays_takenError([false, ""]);
           setTypeError([false, ""]);
 
-          if (bonNbr == ""){
+          if (days_taken == "" || days_taken == 0){
             test = false;
-            setBonNbrError([true, "champ est obligatoire"]);
+            setDays_takenError([true, "champ est obligatoire"]);
           }
 
-          if(source == null || source == ""){
+          if(person == null || person == ""){
             test = false;
-            setSourceError([true, "champ est obligatoire"]);
+            setPersonError([true, "champ est obligatoire"]);
           }
 
           if(date_start == null || date_start == ""){
             test = false;
             setDate_startError([true, "champ est obligatoire"]);
-          }else if(date.isValid() == false){
+          }else if(date_start.isValid() == false){
             test = false;
-            setDateError([true, "date n est pas valide"]);
+            setDate_startError([true, "date n est pas valide"]);
           }
-          if(sortieItemsTableData.length == 0){
+
+          if(date_restart == null || date_restart == ""){
             test = false;
-            setDataError(true);
+            setDate_restartError([true, "champ est obligatoire"]);
+          }else if(date_restart.isValid() == false){
+            test = false;
+            setDate_restartError([true, "date n est pas valide"]);
+          }
+
+          if(date_end == null || date_end == ""){
+            test = false;
+            setDate_endError([true, "champ est obligatoire"]);
+          }else if(date_end.isValid() == false){
+            test = false;
+            setDate_endError([true, "date n est pas valide"]);
           }
 
           if(test){
-            var m = date.get('month')+1;
-            const d = date.get('date') +"/"+m +"/"+date.get('year');
 
             const data = {
-              "bon_sortie_nbr":Number(bonNbr),
-              "id":source.id,
-              "date":d,
+              "id_person":person.id,
+              "vacance_type":type,
+              "days_taken":days_taken,
+              "date_start":date_start,
+              "date_ends":date_end,
+              "date_restart":date_restart,
             }
 
             const token = localStorage.getItem("auth_token");
-            setCallBack(await addBonSortie(token, JSON.stringify(data)));                        
+            setResponse(await addNewVacance(token, JSON.stringify(data)));                        
 
           }else{
             console.log("error");
@@ -245,61 +259,10 @@ const columns = [
         };
       }
 
-        const addSortieIem = async () =>{
-          var test = true;
+      const fillDates = () =>{
+          console.log("hello");
+      }
 
-          setMedicNameError([false, ""]);
-          setArivageError([false, ""]);
-          setQntError([false, ""]);
-
-
-          if(qnt == null || qnt == "" || qnt == "0"){
-            test = false;
-            setQntError([true, "champ est obligatoire"]);
-          }
-
-          if(medicName == null || medicName == ""){
-            test = false;
-            setMedicNameError([true, "champ est obligatoire"]);
-          }
-          if(arivage == null || arivage == ""){
-            test = false;
-          setArivageError([true, "champ est obligatoire"]);
-
-          }
-
-
-          if(test){
-            console.log("good to go");
-
-            if (Number(currentStockItem.stock_qte)< Number(qnt)){
-                setSortieQntError(true);
-
-            }else{
-              var data = {
-                "id": Math.random(),
-                "id_stock": currentStockItem.id,
-                "medic_name": medicName.label,
-                "arrivage":arivage.label,
-                "qnt":currentStockItem.stock_qte,
-                "sortie_qnt":qnt,
-              }
-              sortieItemsTableData = Object.assign([], sortieItemsTableData);
-              sortieItemsTableData.push(data);
-              setDataSortie(sortieItemsTableData);
-              setMedicName(null);
-              setArivage(null);
-              setQnt("");
-              console.log(sortieItemsTableData);
-            }
-
-            
-
-
-          }
-
-
-        }
 
         React.useEffect(() =>{
           try{
@@ -344,7 +307,6 @@ const columns = [
           };
       
           
-
           if (dateFilter.isValid() == false || dateFilter ==""){
             setDateFilterError([true, "une erreur sur le champ de date"]);
             setDateFilterNotErr(true);
@@ -421,8 +383,8 @@ const columns = [
                 >
                 <ButtonGroup variant="outlined" aria-label="outlined primary button group" orientation="vertical">
                   <Button startIcon={<AddCircleOutlineIcon />} onClick={addBonSortieOpen}>إضافة عطلة</Button>
-                  <Button startIcon={<DeleteForeverIcon />} onClick={deleteBonSortieOpen}>إسئناف خاص</Button>
-                  <Button startIcon={<DeleteForeverIcon />} onClick={deleteBonSortieOpen}>إسئناف نهاية العطلة</Button>
+                  <Button startIcon={<KeyboardReturnIcon />} onClick={deleteBonSortieOpen}>إسئناف خاص</Button>
+                  <Button startIcon={<AssignmentReturnIcon />} onClick={deleteBonSortieOpen}>إسئناف نهاية العطلة</Button>
                 </ButtonGroup>
                 </Box>
                 
@@ -529,6 +491,10 @@ const columns = [
                                                   onChange={(event) => {setDays_taken(event.target.value)}}
                                                   required
                                           />
+
+                                          <IconButton aria-label="delete" size="large" onClick={fillDates}>
+                                            <EventRepeatIcon fontSize="inherit" />
+                                          </IconButton>
                                         
                         </Grid>
 

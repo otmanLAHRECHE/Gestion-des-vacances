@@ -13,7 +13,12 @@ export async function getAllVacancesOfYear(token, year){
     );
     const text = await response.text();
     if (response.status === 200) {
-      return JSON.parse(text);
+      try {
+          return JSON.parse(text);
+        } catch (err) {
+          console.error('JSON parse failed', err);
+          return [];
+        }
     } else {
       console.log("failed", text);
       return "no data";

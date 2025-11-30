@@ -36,6 +36,7 @@ import RequestPageIcon from '@mui/icons-material/RequestPage';
 import Rh_emp from "./Rh_employers";
 import Rh_services from './Rh_services';
 import Cuisine_Grades from './Rh_grades';
+import Vacance_inf from './Vacance_manage';
 const drawerWidth = 190;
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -291,7 +292,7 @@ function DashboardContent_Rh() {
         <Toolbar />
 
         
-        {page[0] ? <Rh_emp/> : null}
+        {page[0] ? <Vacance_inf/> : null}
         {page[1] ? <Rh_emp/> : null}
         {page[2] ? <Rh_emp/> : null}
         {page[3] ? <Rh_services/> : null}
