@@ -94,6 +94,7 @@ const columns = [
     const [dateFilterError, setDateFilterError] = React.useState("");
 
     const [loadError, setLoadError ] = React.useState(false);
+    const [loadTwoError, setLoadTwoError ] = React.useState(false);
     const [response, setResponse] = React.useState("");
     const [responseSuccesSignal, setResponseSuccesSignal] = React.useState(false);
     const [responseErrorSignal, setResponseErrorSignal] = React.useState(false);
@@ -250,17 +251,51 @@ const columns = [
           setType("")
         }else if (event.target.value == 1){
           setType("عطلة سنوية")
-        }else if (event.target.value == 1){
-          setType("عطلة مرضية")
-        }else if (event.target.value == 1){
-          setType("وضع تحت الإستيداع")
-        }else if (event.target.value == 1){
-          setType("الخدمة الوطنية")
+        }else if (event.target.value == 2){
+          setType("عطلةإسترجاع")
+        }else if (event.target.value == 3){
+          setType("عطلة إستثنائية")
         };
+
+        
       }
 
       const fillDates = () =>{
-          console.log("hello");
+        
+        var test = true;
+        setDate_startError([false, ""]);
+        setDays_takenError([false, ""]);
+        
+          if(date_start == null || date_start == ""){
+            test = false;
+            setDate_startError([true, "champ est obligatoire"]);
+          }else if(date_start.isValid() == false){
+            test = false;
+            setDate_startError([true, "date n est pas valide"]);
+          }
+
+
+          if (days_taken == "" || days_taken == 0){
+            test = false;
+            setDays_takenError([true, "champ est obligatoire"]);
+          }
+
+
+          if(test){
+        
+            const newEnd = dayjs(date_start).add(days_taken, "day");
+            setDate_end(newEnd);
+
+    // optional: set restart date to the day after end
+            const newRestart = newEnd.add(1, "day");
+            setDate_restart(newRestart);
+
+          }else{
+            console.log("error");
+            setLoadTwoError(true);
+          }
+
+
       }
 
 
@@ -447,9 +482,8 @@ const columns = [
                                         <em>None</em>
                                       </MenuItem>
                                       <MenuItem value={1}>عطلة سنوية</MenuItem>
-                                      <MenuItem value={2}>عطلة مرضية</MenuItem>
-                                      <MenuItem value={3}>وضع تحت الإستيداع</MenuItem>
-                                      <MenuItem value={4}>الخدمة الوطنية</MenuItem>
+                                      <MenuItem value={2}>عطلةإسترجاع</MenuItem>
+                                      <MenuItem value={3}>عطلة إستثنائية</MenuItem>
                                     </Select>
                                 </FormControl>  
                                         
@@ -503,6 +537,7 @@ const columns = [
                                                 <DesktopDatePicker
                                                         label="تاريخ نهايةالعطلة"
                                                         inputFormat="DD/MM/YYYY"
+                                                        disabled={true}
                                                         value={date_end}
                                                         onChange={handleChangeDateEnd}
                                                         renderInput={(params) => <TextField {...params} error={date_endError[0]}
@@ -559,7 +594,8 @@ const columns = [
             
           </Container>
 
-
+            
+            {loadTwoError ? <Alt type='error' message='يجب ملئ تاريخ بداية العطلة و عدد الايام' onClose={()=> setLoadTwoError(false)}/> : null}
             {loadError ? <Alt type='error' message='Des erruers sur les données' onClose={()=> setLoadError(false)}/> : null}
             {responseSuccesSignal ? <Alt type='success' message='Opération réussie' onClose={()=> setResponseSuccesSignal(false)}/> : null}
             {responseErrorSignal ? <Alt type='error' message='Opération a échoué' onClose={()=> setResponseErrorSignal(false)}/> : null}

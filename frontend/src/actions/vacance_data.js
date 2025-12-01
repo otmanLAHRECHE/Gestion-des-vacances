@@ -23,7 +23,6 @@ export async function getAllVacancesOfYear(token, year){
       console.log("failed", text);
       return "no data";
     }
-  
   };
 
 
@@ -42,10 +41,14 @@ export async function getAllVacancesOfYear(token, year){
     );
     const text = await response.text();
     if (response.status === 201) {
-      return JSON.parse(text);
+      try {
+          return JSON.parse(text);
+        } catch (err) {
+          console.error('JSON parse failed', err);
+        }
     } else {
       console.log("failed", text);
-      return "error";
+      return "error in add";
     }
     
     };

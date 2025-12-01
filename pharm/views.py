@@ -302,6 +302,7 @@ def addVacance(request):
         person = Personnel.objects.get(id = id_person)
         days_remains = days_taken
         va = vacance.objects.create(person=person,vacance_type=vacance_type,date_start=date_start,date_end=date_end,date_restart=date_restart,days_taken=days_taken,days_remains=days_remains)
+        
         if va.id is not None:
             return Response(status=status.HTTP_201_CREATED, data={"status": "vacance created sucsusfully"}) 
         else:
