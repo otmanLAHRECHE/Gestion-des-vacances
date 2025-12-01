@@ -1,6 +1,6 @@
 export async function getAllVacancesOfYear(token, year){
     const response = await fetch(
-        '/app/api/get_all_vacance_of_year/' + year ,
+        '/pharm/api/get_all_vacance_of_year/' + year ,
         {
           method: 'GET',
           headers: {
@@ -12,23 +12,19 @@ export async function getAllVacancesOfYear(token, year){
         }
     );
     const text = await response.text();
-    if (response.status === 200) {
-      try {
-          return JSON.parse(text);
-        } catch (err) {
-          console.error('JSON parse failed', err);
-          return [];
-        }
-    } else {
-      console.log("failed", text);
-      return "no data";
-    }
+  if (response.status === 200) {
+    console.log("get the data succesfully", JSON.parse(text));
+    return JSON.parse(text);
+  } else {
+    console.log("failed", text);
+    return "no data";
+  }
   };
 
 
  export async function addNewVacance(token, data){
     const response = await fetch(
-        '/app/api/add_vacance/',
+        '/pharm/api/add_vacance/',
         {
           method: 'POST',
           headers: {
@@ -40,18 +36,19 @@ export async function getAllVacancesOfYear(token, year){
         }
     );
     const text = await response.text();
-    if (response.status === 201) {
-      try {
-          return JSON.parse(text);
-        } catch (err) {
-          console.error('JSON parse failed', err);
-        }
-    } else {
-      console.log("failed", text);
-      return "error in add";
-    }
+  if (response.status === 201) {
+    console.log("status 200, response: ", JSON.parse(text));
+    return JSON.parse(text);
+  } else {
+    console.log("failed", text);
+    return "error";
+  }
     
     };
+
+
+
+    
 
 export async function deleteVacance(token, id){
             const response = await fetch(
@@ -67,11 +64,12 @@ export async function deleteVacance(token, id){
                 }
             );
             const text = await response.text();
-            if (response.status === 200) {
-              return JSON.parse(text);
-            } else {
-              console.log("failed", text);
-              return "error";
-            }
+  if (response.status === 200) {
+    console.log("status 200, response: ", JSON.parse(text));
+    return JSON.parse(text);
+  } else {
+    console.log("failed", text);
+    return "error";
+  }
             
             };

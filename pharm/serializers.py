@@ -59,6 +59,6 @@ class PersonneListSerialize(serializers.ModelSerializer):
 class VacanceSerializer(serializers.ModelSerializer):
     person = PersonnelSerialize()
     class Meta:
-        model = vacance
+        model = Vacance
         fields = ['id','person','date_start','date_ends','days_taken','date_restart','vacance_type']
 

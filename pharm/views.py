@@ -248,7 +248,7 @@ def updatePerson(request, id):
             article_to_update.service = service
         if not article_to_update.grade == grade:
             article_to_update.grade = grade
-        
+
         article_to_update.save()
         
         return Response(status=status.HTTP_200_OK, data = {"status":"Person updated"})
@@ -260,6 +260,7 @@ def deletePerson(request, id):
         Personnel.objects.filter(id=id).delete()
         return Response(status=status.HTTP_200_OK, data = {"status":"Person deleted"})
     
+
 @api_view(['GET'])
 def getAllPersonsNames(request):
     if request.method == 'GET' and request.user.is_authenticated:
@@ -267,9 +268,7 @@ def getAllPersonsNames(request):
 
         source_serial = PersonneListSerialize(queryset, many=True)
 
-        return Response(status=status.HTTP_200_OK,data=source_serial.data)
-                
-    
+        return Response(status=status.HTTP_200_OK,data=source_serial.data)      
     else :
         return Response(status=status.HTTP_401_UNAUTHORIZED)  
     
@@ -283,7 +282,8 @@ def getAllPersonsNames(request):
 @api_view(['POST'])
 def addVacance(request):
     if request.method == 'POST' and request.user.is_authenticated:
-
+        
+        print("test........")
         id_person = request.data.pop("id_person")
         vacance_type = request.data.pop("vacance_type")
         days_taken = request.data.pop("days_taken")
@@ -301,8 +301,8 @@ def addVacance(request):
         date_restart = datetime.date(int(date_c[2]), int(date_c[1]), int(date_c[0]))
         person = Personnel.objects.get(id = id_person)
         days_remains = days_taken
-        va = vacance.objects.create(person=person,vacance_type=vacance_type,date_start=date_start,date_end=date_end,date_restart=date_restart,days_taken=days_taken,days_remains=days_remains)
-        
+        va = Vacance.objects.create(person=person,vacance_type=vacance_type,date_start=date_start,date_ends=date_end,date_restart=date_restart,days_taken=days_taken,days_remains=days_remains)
+
         if va.id is not None:
             return Response(status=status.HTTP_201_CREATED, data={"status": "vacance created sucsusfully"}) 
         else:
@@ -315,7 +315,7 @@ def getAllVacancesOfYear(request, year):
         datest = datetime.date(year , 1, 1)
         dateed = datetime.date( year, 12, 31)
         print("data")
-        queryset = vacance.objects.filter(date_restart__gte=datest, date_restart__lte=dateed).order_by("-date_restart")
+        queryset = Vacance.objects.filter(date_restart__gte=datest, date_restart__lte=dateed).order_by("date_restart")
 
         source_serial = VacanceSerializer(queryset, many=True)
 
@@ -327,6 +327,6 @@ def getAllVacancesOfYear(request, year):
 @api_view(['DELETE'])
 def deleteVacance(request, id):
     if request.method == 'DELETE' and request.user.is_authenticated:
-        vacance.objects.filter(id=id).delete()
+        Vacance.objects.filter(id=id).delete()
         return Response(status=status.HTTP_200_OK, data = {"status":"Vacance deleted"})
  

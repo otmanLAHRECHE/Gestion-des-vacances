@@ -56,9 +56,9 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 const columns = [
     { field: 'id', headerName: 'Id', width: 60, hide: true },
-    { field: 'person', headerName: 'العامل', width: 200, valueGetter: (params) =>
+    { field: 'person', headerName: 'العامل', width: 180, valueGetter: (params) =>
     `${params.row.person.full_name || ''}` },
-    { field: 'service', headerName: 'المصلحة', width: 200, valueGetter: (params) =>
+    { field: 'service', headerName: 'المصلحة', width: 180, valueGetter: (params) =>
     `${params.row.person.service.name || ''}` },
     { field: 'date_start', headerName: 'تاريخ بداية العطلة', width: 140 },
     { field: 'date_ends', headerName: 'تاريخ  نهاية العطلة', width: 140 },
@@ -227,14 +227,23 @@ const columns = [
 
           if(test){
 
+            var m = date_start.get('month')+1;
+            const date_a = date_start.get('date') +"/"+m +"/"+date_start.get('year');
+            m = date_end.get('month')+1
+            const date_b = date_end.get('date') +"/"+m+"/"+date_end.get('year');
+            m = date_restart.get('month')+1
+            const date_c = date_restart.get('date') +"/"+m+"/"+date_restart.get('year');
+
             const data = {
               "id_person":person.id,
               "vacance_type":type,
               "days_taken":days_taken,
-              "date_start":date_start,
-              "date_ends":date_end,
-              "date_restart":date_restart,
+              "date_start":date_a,
+              "date_ends":date_b,
+              "date_restart":date_c,
             }
+
+            console.log(data);
 
             const token = localStorage.getItem("auth_token");
             setResponse(await addNewVacance(token, JSON.stringify(data)));                        
@@ -252,7 +261,7 @@ const columns = [
         }else if (event.target.value == 1){
           setType("عطلة سنوية")
         }else if (event.target.value == 2){
-          setType("عطلةإسترجاع")
+          setType("عطلة إسترجاع")
         }else if (event.target.value == 3){
           setType("عطلة إستثنائية")
         };
@@ -348,8 +357,8 @@ const columns = [
           }else{
             fetchData();
           }
-    
-          
+
+          setOpen(false);
     
         }, [response, dateFilter]);
 
@@ -437,7 +446,6 @@ const columns = [
                               pageSize={15}
                               checkboxSelection = {false}
                               loading={loading}
-                              getRowHeight={() => 'auto'}
                               disableMultipleSelection={true}
                               onSelectionModelChange={(newSelectionModel) => {
                                 setSelectionModel(newSelectionModel);
@@ -482,7 +490,7 @@ const columns = [
                                         <em>None</em>
                                       </MenuItem>
                                       <MenuItem value={1}>عطلة سنوية</MenuItem>
-                                      <MenuItem value={2}>عطلةإسترجاع</MenuItem>
+                                      <MenuItem value={2}>عطلة إسترجاع</MenuItem>
                                       <MenuItem value={3}>عطلة إستثنائية</MenuItem>
                                     </Select>
                                 </FormControl>  

@@ -38,7 +38,7 @@ class Personnel(models.Model):
 
 
 
-class vacance(models.Model):
+class Vacance(models.Model):
     id = models.AutoField(primary_key=True)
     person = models.ForeignKey(Personnel, on_delete=models.CASCADE)
     date_start = models.DateField()
