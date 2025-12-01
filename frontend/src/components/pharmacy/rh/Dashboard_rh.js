@@ -170,7 +170,7 @@ function DashboardContent_Rh() {
           <Toolbar
             sx={{
               pr: '24px',
-              backgroundColor: '#347debff', // keep right padding when drawer closed
+              backgroundColor: '#014db2ff', // keep right padding when drawer closed
             }}
           >
             <IconButton

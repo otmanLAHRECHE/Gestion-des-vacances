@@ -56,19 +56,38 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 const columns = [
     { field: 'id', headerName: 'Id', width: 60, hide: true },
-    { field: 'person', headerName: 'العامل', width: 180, valueGetter: (params) =>
+    { field: 'person', headerName: 'العامل', flex: 1, resizable: true,width: 180, valueGetter: (params) =>
     `${params.row.person.full_name || ''}` },
-    { field: 'service', headerName: 'المصلحة', width: 180, valueGetter: (params) =>
+    { field: 'service', headerName: 'المصلحة', flex: 0.9, resizable: true,width: 180, valueGetter: (params) =>
     `${params.row.person.service.name || ''}` },
-    { field: 'date_start', headerName: 'تاريخ بداية العطلة', width: 140 },
-    { field: 'date_ends', headerName: 'تاريخ  نهاية العطلة', width: 140 },
-    { field: 'date_restart', headerName: 'تاريخ  الإستئناف ', width: 140 },
-    { field: 'vacance_type', headerName: 'نوع العطلة ', width: 140 },
-    { field: 'days_taken', headerName: 'عدد أيام العطلة', width: 140 },
-    { field: 'days_remains', headerName: 'عدد الأيام المتبقية', width: 140 },
+    { field: 'date_start', headerName: 'تاريخ بداية العطلة', flex: 0.9, resizable: true,width: 140 },
+    { field: 'date_ends', headerName: 'تاريخ  نهاية العطلة', flex: 0.9,width: 140 },
+    { field: 'date_restart', headerName: 'تاريخ  الإستئناف ', flex: 0.9,width: 140 },
+    { field: 'vacance_type', headerName: 'نوع العطلة ', flex: 0.9,width: 140 },
+    { field: 'days_taken', headerName: 'عدد أيام العطلة', flex: 0.9,width: 140 },
+    { field: 'days_remains', headerName: 'عدد الأيام المتبقية', width: 140, valueGetter: (params) => {
+      const restart = params.row.date_restart;
+      if (!restart) return null;
+      const restartDay = dayjs(restart);
+      const diff = restartDay.diff(dayjs(), 'day'); // full days difference
+      return diff >= 0 ? diff : 0;
+    },sortComparator: (v1, v2) => (v1 ?? 0) - (v2 ?? 0) },
   ];
 
+
+  
+
   export default function Vacance_inf(){
+
+
+    const getRowClassName = (params) => {
+    const restart = params.row.date_restart;
+    if (!restart) return '';
+    const diff = dayjs(restart).diff(dayjs(), 'day');
+    if (diff <= 0) return 'row-red';         // 0 or past -> red
+    if (diff >= 1 && diff <= 5) return 'row-yellow'; // 1..5 -> yellow
+    return '';                                // otherwise no class
+  };
 
     const [person, setPerson] = React.useState("");
     const [type, setType] = React.useState("");
@@ -385,6 +404,14 @@ const columns = [
           setResponse(await deleteVacance(token, selectionModel[0])); 
         }
 
+
+        const handleColumnResize = (params) => {
+    // params typically contains colDef.field and width
+    setColumns((prev) =>
+      prev.map((c) => (c.field === params.colDef.field ? { ...c, width: params.width, flex: undefined } : c))
+    );
+  };
+
         return(
 
           <React.Fragment>
@@ -451,6 +478,24 @@ const columns = [
                                 setSelectionModel(newSelectionModel);
                               }}
                               selectionModel={selectionModel}
+                              getRowClassName={getRowClassName}
+        onColumnResize={handleColumnResize}
+        density="compact"
+        sx={{
+          // row background colors (light, non-intrusive)
+          '& .row-red': {
+            bgcolor: (theme) => theme.palette.error.light,
+            '&:hover': { bgcolor: (theme) => theme.palette.error.main },
+          },
+          '& .row-yellow': {
+            bgcolor: (theme) => theme.palette.warning.light,
+            '&:hover': { bgcolor: (theme) => theme.palette.warning.main },
+          },
+          // optional: keep text readable
+          '& .row-red, & .row-yellow': {
+            color: (theme) => theme.palette.getContrastText(theme.palette.background.paper),
+          }
+        }}
                               
                               
                           />
