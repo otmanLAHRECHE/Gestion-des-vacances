@@ -335,16 +335,10 @@ def deleteVacance(request, id):
 def addRestartVacance(request):
     if request.method == 'POST' and request.user.is_authenticated:
         
-       
         id_vacance = request.data.pop("id_vacance")
-
         date_a = request.data.pop("date_real_restart")
-        
         date_a = date_a.split("/")
         date_real_restart = datetime.date(int(date_a[2]), int(date_a[1]), int(date_a[0]))
-        
-        print("id.............",id_vacance)
-        print("date............",date_real_restart)
         
         vacance = Vacance.objects.get(id = id_vacance)
 
@@ -355,3 +349,18 @@ def addRestartVacance(request):
             return Response(status=status.HTTP_201_CREATED, data={"status": "vacance archived sucsusfully"}) 
         else:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+@api_view(['GET'])
+def getAllVacancesHistory(request):
+    if request.method == 'GET' and request.user.is_authenticated:
+
+        queryset = VacanceHistory.objects.all().order_by("date_restart_real")
+
+        source_serial = VacanceHistorySerializer(queryset, many=True)
+
+        return Response(status=status.HTTP_200_OK,data=source_serial.data)
+                
+    else :
+        return Response(status=status.HTTP_401_UNAUTHORIZED) 

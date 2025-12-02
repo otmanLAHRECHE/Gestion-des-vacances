@@ -37,6 +37,7 @@ import Rh_emp from "./Rh_employers";
 import Rh_services from './Rh_services';
 import Cuisine_Grades from './Rh_grades';
 import Vacance_inf from './Vacance_manage';
+import Vacance_historic_inf from './Vacance_history';
 const drawerWidth = 190;
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -293,7 +294,7 @@ function DashboardContent_Rh() {
 
         
         {page[0] ? <Vacance_inf/> : null}
-        {page[1] ? <Rh_emp/> : null}
+        {page[1] ? <Vacance_historic_inf/> : null}
         {page[2] ? <Rh_emp/> : null}
         {page[3] ? <Rh_services/> : null}
         {page[4] ? <Cuisine_Grades/> : null}

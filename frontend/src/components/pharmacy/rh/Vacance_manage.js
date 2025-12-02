@@ -140,10 +140,7 @@ const columns = [
     const [date_real_restart, setDate_real_restart] = React.useState("");
     const [date_real_restartError, setDate_real_restartError] = React.useState("");
 
-
     const [selectedRow, setSelectedRow] = React.useState(null);
-
-
 
     const theme = useTheme
 
@@ -205,8 +202,6 @@ const columns = [
           setDateFilter(newValue);
 
         }
-
-       
 
         const addBonSortieSave = async () =>{
           var test = true;
@@ -280,7 +275,6 @@ const columns = [
             setLoadError(true);
           }
         }
-
 
          const change_type = (event) => {
           if (event.target.value == ""){

@@ -32,4 +32,7 @@ urlpatterns = [
     path('api/delete_vacance/<int:id>', views.deleteVacance),
     path('api/add_real_restart/', views.addRestartVacance),
 
+
+    path('api/get_all_vacance_history/', views.getAllVacancesHistory),
+
 ]
