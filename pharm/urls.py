@@ -30,5 +30,6 @@ urlpatterns = [
     path('api/get_all_vacance_of_year/<int:year>', views.getAllVacancesOfYear),
     path('api/add_vacance/', views.addVacance),
     path('api/delete_vacance/<int:id>', views.deleteVacance),
+    path('api/add_real_restart/', views.addRestartVacance),
 
 ]

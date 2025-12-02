@@ -62,3 +62,9 @@ class VacanceSerializer(serializers.ModelSerializer):
         model = Vacance
         fields = ['id','person','date_start','date_ends','days_taken','date_restart','vacance_type']
 
+
+class VacanceHistorySerializer(serializers.ModelSerializer):
+    person = PersonnelSerialize()
+    class Meta:
+        model = VacanceHistory
+        fields = ['id','person','date_start','date_ends','days_taken','date_restart','date_restart_real','vacance_type']

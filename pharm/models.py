@@ -50,5 +50,18 @@ class Vacance(models.Model):
 
     def __str__(self):
         return str(self.id)
+    
 
+class VacanceHistory(models.Model):
+    id = models.AutoField(primary_key=True)
+    person = models.ForeignKey(Personnel, on_delete=models.CASCADE)
+    date_start = models.DateField()
+    date_ends = models.DateField()
+    days_taken = models.IntegerField()
+    days_remains = models.IntegerField()
+    date_restart = models.DateField()
+    date_restart_real = models.DateField()
+    vacance_type = models.CharField(max_length=100)
 
+    def __str__(self):
+        return str(self.id)

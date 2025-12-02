@@ -46,7 +46,7 @@ import Container from '@mui/material/Container';
 
 import Alt from '../../layouts/alert';
 
-import { addNewVacance,getAllVacancesOfYear,deleteVacance } from '../../../actions/vacance_data';
+import { addNewVacance,getAllVacancesOfYear,deleteVacance, restartVacance } from '../../../actions/vacance_data';
 import { getAllPersonsNames } from '../../../actions/pers_data';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -68,8 +68,9 @@ const columns = [
     { field: 'days_remains', headerName: 'عدد الأيام المتبقية', width: 140, valueGetter: (params) => {
       const restart = params.row.date_restart;
       if (!restart) return null;
-      const restartDay = dayjs(restart);
-      const diff = restartDay.diff(dayjs(), 'day'); // full days difference
+      const today = dayjs().startOf('day');
+      const restartDay = dayjs(restart).startOf('day');
+      const diff = restartDay.diff(today, 'day'); 
       return diff >= 0 ? diff : 0;
     },sortComparator: (v1, v2) => (v1 ?? 0) - (v2 ?? 0) },
   ];
@@ -117,6 +118,7 @@ const columns = [
     const [response, setResponse] = React.useState("");
     const [responseSuccesSignal, setResponseSuccesSignal] = React.useState(false);
     const [responseErrorSignal, setResponseErrorSignal] = React.useState(false);
+    const [loaError, setLoaError ] = React.useState(false);
 
     const [allPersons, setAllPersons] = React.useState([]);
     const [allTypes, setAllTypes] = React.useState([]);
@@ -133,8 +135,14 @@ const columns = [
     const [selectionError, setSelectionError] = React.useState(false);
     const [selectionModelItems, setSelectionModelItems] = React.useState([]);
     const [rowData, setRowData] = React.useState("");
-
     const [dataError, setDataError] = React.useState(false);
+
+    const [date_real_restart, setDate_real_restart] = React.useState("");
+    const [date_real_restartError, setDate_real_restartError] = React.useState("");
+
+
+    const [selectedRow, setSelectedRow] = React.useState(null);
+
 
 
     const theme = useTheme
@@ -311,7 +319,7 @@ const columns = [
 
           if(test){
         
-            const newEnd = dayjs(date_start).add(days_taken, "day");
+            const newEnd = dayjs(date_start).add(parseInt(days_taken) - 1, "day");
             setDate_end(newEnd);
 
     // optional: set restart date to the day after end
@@ -384,11 +392,33 @@ const columns = [
       
 
         const deleteBonSortieOpen = () =>{
-
+          setDate_real_restart("");
+          setDate_real_restartError([false, ""]);
           if(selectionModel.length == 0){
             setSelectionError(true);
           }else{   
             setOpenDelete(true);
+          }
+          
+        }
+
+        const deleteBonSortieOpenEnd = () =>{
+          setDate_real_restart("");
+          setDate_real_restartError([false, ""]);
+          if(selectionModel.length == 0){
+            setSelectionError(true);
+          }else{
+
+              const inputDay = dayjs(selectedRow.date_restart).startOf("day");
+              const today = dayjs().startOf("day");
+
+              if (inputDay.isSame(today) || inputDay.isAfter(today)) {
+                setLoaError(true);
+              } else {
+                console.log("logging for end of vacance.......");
+                setOpenDelete(true);
+                
+              } 
           }
           
         }
@@ -398,10 +428,35 @@ const columns = [
         }
   
         const deleteConfirmation = async () =>{
-  
-          setOpenDelete(false);
-          const token = localStorage.getItem("auth_token");
-          setResponse(await deleteVacance(token, selectionModel[0])); 
+
+          var test = true;
+
+          setDate_real_restartError([false, ""]);
+
+          if(date_real_restart == null || date_real_restart == ""){
+            test = false;
+            setDate_real_restartError([true, "champ est obligatoire"]);
+          }else if(date_real_restart.isValid() == false){
+            test = false;
+            setDate_real_restartError([true, "date n est pas valide"]);
+          }
+          if(test){
+             var m = date_real_restart.get('month')+1;
+            const date_a = date_real_restart.get('date') +"/"+m +"/"+date_real_restart.get('year');
+            
+            const data = {
+              "id_vacance":selectionModel[0],
+              "date_real_restart":date_a,
+            }
+            setOpenDelete(false);
+            const token = localStorage.getItem("auth_token");
+            setResponse(await restartVacance(token, JSON.stringify(data))); 
+          }
+          
+        }
+
+        const handleChangeRealRestart = (newValue) =>{
+          setDate_real_restart(newValue);
         }
 
 
@@ -455,7 +510,7 @@ const columns = [
                 <ButtonGroup variant="outlined" aria-label="outlined primary button group" orientation="vertical">
                   <Button startIcon={<AddCircleOutlineIcon />} onClick={addBonSortieOpen}>إضافة عطلة</Button>
                   <Button startIcon={<KeyboardReturnIcon />} onClick={deleteBonSortieOpen}>إسئناف خاص</Button>
-                  <Button startIcon={<AssignmentReturnIcon />} onClick={deleteBonSortieOpen}>إسئناف نهاية العطلة</Button>
+                  <Button startIcon={<AssignmentReturnIcon />} onClick={deleteBonSortieOpenEnd}>إسئناف نهاية العطلة</Button>
                 </ButtonGroup>
                 </Box>
                 
@@ -474,9 +529,12 @@ const columns = [
                               checkboxSelection = {false}
                               loading={loading}
                               disableMultipleSelection={true}
-                              onSelectionModelChange={(newSelectionModel) => {
-                                setSelectionModel(newSelectionModel);
+                              onRowClick={(params) => {
+                                // keep grid selection in sync (IDs) and also store full row
+                                setSelectionModel([params.id]);
+                                setSelectedRow(params.row);
                               }}
+                              onRowSelectionModelChange={(newModel) => setSelectionModel(newModel)} 
                               selectionModel={selectionModel}
                               getRowClassName={getRowClassName}
         onColumnResize={handleColumnResize}
@@ -635,9 +693,25 @@ const columns = [
                                   >
                                     <DialogTitle>{"تأكيد الإستئناف"}</DialogTitle>
                                     <DialogContent>
+                                      <Grid item xs={4}>
+                                        
                                       <DialogContentText id="alert-dialog-slide-description">
                                       معلومات عطلة هذا الموظف سوف تحفظ في أرشيف العطل
                                       </DialogContentText>
+
+                                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                <DesktopDatePicker
+                                                        label="تاريخ الإستئناف"
+                                                        inputFormat="DD/MM/YYYY"
+                                                        value={date_real_restart}
+                                                        onChange={handleChangeRealRestart}
+                                                        renderInput={(params) => <TextField {...params} error={date_real_restartError[0]}
+                                                        helperText={date_real_restartError[1]} 
+                                                        required/>}
+                                                />
+
+                                            </LocalizationProvider>
+                                        </Grid>
                                     </DialogContent>
                                     <DialogActions>
                                       <Button onClick={deleteBonSortieClose}>إلغاء</Button>
@@ -647,7 +721,7 @@ const columns = [
             
           </Container>
 
-            
+            {loaError ? <Alt type='error' message='لم تنتهي عطلة الموظف' onClose={()=> setLoaError(false)}/> : null}
             {loadTwoError ? <Alt type='error' message='يجب ملئ تاريخ بداية العطلة و عدد الايام' onClose={()=> setLoadTwoError(false)}/> : null}
             {loadError ? <Alt type='error' message='Des erruers sur les données' onClose={()=> setLoadError(false)}/> : null}
             {responseSuccesSignal ? <Alt type='success' message='Opération réussie' onClose={()=> setResponseSuccesSignal(false)}/> : null}

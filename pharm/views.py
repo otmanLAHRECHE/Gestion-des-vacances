@@ -330,3 +330,28 @@ def deleteVacance(request, id):
         Vacance.objects.filter(id=id).delete()
         return Response(status=status.HTTP_200_OK, data = {"status":"Vacance deleted"})
  
+
+@api_view(['POST'])
+def addRestartVacance(request):
+    if request.method == 'POST' and request.user.is_authenticated:
+        
+       
+        id_vacance = request.data.pop("id_vacance")
+
+        date_a = request.data.pop("date_real_restart")
+        
+        date_a = date_a.split("/")
+        date_real_restart = datetime.date(int(date_a[2]), int(date_a[1]), int(date_a[0]))
+        
+        print("id.............",id_vacance)
+        print("date............",date_real_restart)
+        
+        vacance = Vacance.objects.get(id = id_vacance)
+
+        vacance_history = VacanceHistory.objects.create(person=vacance.person,vacance_type=vacance.vacance_type,date_start=vacance.date_start,date_ends=vacance.date_ends,date_restart=vacance.date_restart,days_taken=vacance.days_taken,days_remains=vacance.days_remains,date_restart_real=date_real_restart)
+
+        if vacance_history.id is not None:
+            Vacance.objects.filter(id=id_vacance).delete()
+            return Response(status=status.HTTP_201_CREATED, data={"status": "vacance archived sucsusfully"}) 
+        else:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

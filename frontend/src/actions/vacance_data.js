@@ -52,7 +52,7 @@ export async function getAllVacancesOfYear(token, year){
 
 export async function deleteVacance(token, id){
             const response = await fetch(
-                '/app/api/delete_vacance/'+id,
+                '/pharm/api/delete_vacance/'+id,
                 {
                   method: 'DELETE',
                   headers: {
@@ -73,3 +73,28 @@ export async function deleteVacance(token, id){
   }
             
             };
+
+
+  
+  export async function restartVacance(token, data){
+    const response = await fetch(
+        '/pharm/api/add_real_restart/',
+        {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': 'Token ' +token,
+          },
+          body: data
+        }
+    );
+    const text = await response.text();
+  if (response.status === 201) {
+    console.log("status 201, response: ", JSON.parse(text));
+    return JSON.parse(text);
+  } else {
+    console.log("failed", text);
+    return "error";
+  }
+};
