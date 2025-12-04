@@ -25,8 +25,8 @@ function Copyright(props) {
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
       <Link color="inherit" href="https://github.com/otmanLAHRECHE">
-      EHS GUEDDI BAKIR GHARDAIA V3.0  
-      </Link>{' '}-- created by otman LAHRECHE
+      EHS GUEDDI BAKIR GHARDAIA Gestion des vacances V1.1  
+      </Link>{' '}-- created by otmane LAHRECHE
       {'.'}
     </Typography>
   );
@@ -121,7 +121,7 @@ export default function SignInSide() {
           sm={4}
           md={7}
           sx={{
-            backgroundImage: 'url(https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.lecoindesentrepreneurs.fr%2Fcout-de-revient-calcul%2F&psig=AOvVaw0m6ZunGGRXLSxi4-0Bd-mQ&ust=1750847015658000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCID1sMnriY4DFQAAAAAdAAAAABAE)',
+            backgroundImage: 'url(https://cdn.create.vista.com/api/media/medium/413256028/stock-photo-business-technology-internet-network-concept-human-resources-management-recruitment-employment?token=)',
             backgroundRepeat: 'no-repeat',
             backgroundColor: (t) =>
               t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
@@ -143,7 +143,7 @@ export default function SignInSide() {
               <LockOutlinedIcon />
             </Avatar>
             <Typography component="h1" variant="h5">
-              EHS GUEDDI BAKIR GHARDAIA
+              Gestion des vacances
             </Typography>
             <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
               <TextField

@@ -149,7 +149,7 @@ const columns = [
             <Typography variant="body2" color="text.secondary" align="center" {...props}>
               {'Copyright © '}
               <Link color="inherit" href="https://github.com/otmanLAHRECHE">
-                EPSP Djanet V3.0 
+                EHS GUEDDI BAKIR GHARDAIA Gestion des vacances V1.1  
               </Link>{' '}
               -- created by otman LAHRECHE
               {'.'}
@@ -406,7 +406,7 @@ const columns = [
               const inputDay = dayjs(selectedRow.date_restart).startOf("day");
               const today = dayjs().startOf("day");
 
-              if (inputDay.isSame(today) || inputDay.isAfter(today)) {
+              if (inputDay.isAfter(today)) {
                 setLoaError(true);
               } else {
                 console.log("logging for end of vacance.......");
@@ -459,7 +459,7 @@ const columns = [
     setColumns((prev) =>
       prev.map((c) => (c.field === params.colDef.field ? { ...c, width: params.width, flex: undefined } : c))
     );
-  };
+        };
 
         return(
 

@@ -38,6 +38,8 @@ import Rh_services from './Rh_services';
 import Cuisine_Grades from './Rh_grades';
 import Vacance_inf from './Vacance_manage';
 import Vacance_historic_inf from './Vacance_history';
+import HowToRegIcon from '@mui/icons-material/HowToReg';
+import HistoryIcon from '@mui/icons-material/History';
 const drawerWidth = 190;
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -171,7 +173,7 @@ function DashboardContent_Rh() {
           <Toolbar
             sx={{
               pr: '24px',
-              backgroundColor: '#014db2ff', // keep right padding when drawer closed
+              backgroundColor: '#d78304ff', // keep right padding when drawer closed
             }}
           >
             <IconButton
@@ -239,14 +241,14 @@ function DashboardContent_Rh() {
                     </ListSubheader>
                 <ListItemButton selected = {page[0]} onClick={clickEtat}>
                   <ListItemIcon>
-                    <RequestPageIcon />
+                    <HowToRegIcon />
                   </ListItemIcon>
                   <ListItemText primary="العطل"/>
                 </ListItemButton>
 
                 <ListItemButton selected = {page[1]} onClick={clickhistoric}>
                   <ListItemIcon>
-                    <RequestPageIcon />
+                    <HistoryIcon />
                   </ListItemIcon>
                   <ListItemText primary="ارشيف العطل"/>
                 </ListItemButton>

@@ -80,7 +80,7 @@ const columns = [
             <Typography variant="body2" color="text.secondary" align="center" {...props}>
               {'Copyright © '}
               <Link color="inherit" href="https://github.com/otmanLAHRECHE">
-                EPSP Djanet V3.0 
+                EHS GUEDDI BAKIR GHARDAIA Gestion des vacances V1.1   
               </Link>{' '}
               -- created by otman LAHRECHE
               {'.'}
